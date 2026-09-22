@@ -17,24 +17,17 @@ export const TranslationProvider = ({ children }) => {
     localStorage.setItem('language', language);
   }, [language]);
 
-  const t = (key) => {
-    // Ensure we have a valid language
+  const t = (key, values = {}) => {
     const currentLanguage = language === 'am' ? 'am' : 'en';
-    
-    // Check if the key exists in the current language
-    if (translations[currentLanguage]?.[key]) {
-      return translations[currentLanguage][key];
-    }
-    
-    // Fallback to English if key doesn't exist in current language
-    if (translations['en']?.[key]) {
-      console.warn(`Translation key "${key}" not found in ${currentLanguage}, falling back to English`);
-      return translations['en'][key];
-    }
-    
-    // If key doesn't exist in either language, return the key itself
-    console.warn(`Translation key "${key}" not found in any language`);
-    return key;
+    const lookup = (catalogue) => key.split('.').reduce(
+      (value, part) => (value && typeof value === 'object' ? value[part] : undefined),
+      catalogue,
+    );
+    const phrase = lookup(translations[currentLanguage]) ?? lookup(translations.en) ?? key;
+
+    return typeof phrase === 'string'
+      ? phrase.replace(/\{(\w+)\}/g, (_, name) => values[name] ?? `{${name}}`)
+      : key;
   };
 
   return (
@@ -44,4 +37,4 @@ export const TranslationProvider = ({ children }) => {
   );
 };
 
-export const useTranslation = () => useContext(TranslationContext); 
+export const useTranslation = () => useContext(TranslationContext);

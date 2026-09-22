@@ -30,11 +30,10 @@ const SignIn = () => {
         setError(result.message || t('errorFailedToSignIn'));
       } else {
         const storedReturn = (() => { try { return sessionStorage.getItem('RETURN_TO'); } catch { return null; } })();
-        let redirectTo = result.user?.role === 'admin' ? '/admin/dashboard' : (location.state?.from || storedReturn || '/');
+        const redirectTo = location.state?.from || storedReturn || '/';
         try {
           sessionStorage.removeItem('RETURN_TO');
           sessionStorage.removeItem('PENDING_INTENT');
-          sessionStorage.removeItem('TEMP_AUTH_ROLE');
         } catch { /* noop */ }
         navigate(redirectTo, { replace: true });
       }
@@ -138,7 +137,7 @@ const SignIn = () => {
                   autoComplete="current-password"
                   required
                   className="input-field pl-10 pr-10"
-                  placeholder="Enter your password"
+                  placeholder={t('staticCopy.enterPassword')}
                   value={formData.password}
                   onChange={handleChange}
                 />
@@ -151,24 +150,6 @@ const SignIn = () => {
                   {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                 </button>
               </div>
-            </div>
-
-            {/* Role */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-primary-text mb-1.5">
-                Sign in as
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="input-field"
-                required
-              >
-                <option value="customer">Customer</option>
-                <option value="admin">Admin</option>
-              </select>
             </div>
 
             {/* Submit */}
